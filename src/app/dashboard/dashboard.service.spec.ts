@@ -21,7 +21,7 @@ describe('DashboardService', () => {
     service.loadDepartments();
     service.loadDepartments();
     expect(service.loading()).toBe(true);
-    const request = http.expectOne('/departments');
+    const request = http.expectOne('http://localhost:8080/departments');
     expect(request.request.method).toBe('GET');
     const departments = [{ id: 7, name: 'Engineering', totalEmployees: 12 }];
     request.flush(departments);
@@ -32,12 +32,14 @@ describe('DashboardService', () => {
 
   it('allows retry after a failed request and handles an empty list', () => {
     service.loadDepartments();
-    http.expectOne('/departments').flush('Unavailable', { status: 503, statusText: 'Unavailable' });
+    http
+      .expectOne('http://localhost:8080/departments')
+      .flush('Unavailable', { status: 503, statusText: 'Unavailable' });
     expect(service.loading()).toBe(false);
     expect(service.error()).toContain('Unable to load departments');
     service.loadDepartments();
     expect(service.error()).toBeNull();
-    http.expectOne('/departments').flush([]);
+    http.expectOne('http://localhost:8080/departments').flush([]);
     expect(service.departments()).toEqual([]);
     expect(service.loading()).toBe(false);
   });

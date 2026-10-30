@@ -1,5 +1,69 @@
 <section aria-labelledby="employee-title">
   <p class="eyebrow">Department employees</p>
   <h1 id="employee-title">Employees</h1>
-  <p class="placeholder" role="status">The employee list for this department is coming soon.</p>
+  @if (employee.department(); as department) {
+    <p class="description">{{ department.name }} · {{ department.totalEmployees }} employees</p>
+  }
+
+  @if (employee.loading()) {
+    <p class="status" role="status">Loading employees…</p>
+  } @else if (employee.error()) {
+    <div class="status error" role="alert">
+      <p>{{ employee.error() }}</p>
+      <button type="button" (click)="employee.retry()">Try again</button>
+    </div>
+  } @else if (employee.employees().length === 0) {
+    <p class="status" role="status">No employees found.</p>
+  } @else {
+    <div class="table-container">
+      <table>
+        <caption class="visually-hidden">
+          Department employees. Select a salary to open its salary structure dialog.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Department ID</th>
+            <th scope="col" class="salary">Salary</th>
+            <th scope="col">Country</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (person of employee.employees(); track person.id) {
+            <tr>
+              <td>{{ person.id }}</td>
+              <td class="employee-name">{{ person.name }}</td>
+              <td>{{ person.departmentId }}</td>
+              <td class="salary">
+                <button
+                  class="salary-link"
+                  type="button"
+                  aria-haspopup="dialog"
+                  [attr.aria-label]="'View salary structure for ' + person.name"
+                  (click)="salaryDialog.open()"
+                >
+                  {{ person.salary | number: '1.2-2' }}
+                </button>
+              </td>
+              <td>{{ person.country }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (employee.totalPages() > 0) {
+    <nav class="pagination" aria-label="Employee pagination">
+      <button type="button" [disabled]="!employee.canPrevious()" (click)="employee.previousPage()">
+        Previous
+      </button>
+      <span aria-live="polite">Page {{ employee.page() + 1 }} of {{ employee.totalPages() }}</span>
+      <button type="button" [disabled]="!employee.canNext()" (click)="employee.nextPage()">
+        Next
+      </button>
+    </nav>
+  }
 </section>
+<app-salary-structure-dialog #salaryDialog />

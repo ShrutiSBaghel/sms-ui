@@ -20,7 +20,9 @@ describe('Dashboard navigation', () => {
   it('shows departments by default, routes to employees, and returns Home', async () => {
     const harness = await RouterTestingHarness.create('/');
     expect(harness.routeNativeElement?.textContent).toContain('Loading departments');
-    http.expectOne('/departments').flush([{ id: 7, name: 'Engineering', totalEmployees: 12 }]);
+    http
+      .expectOne('http://localhost:8080/departments')
+      .flush([{ id: 7, name: 'Engineering', totalEmployees: 12 }]);
     harness.detectChanges();
     const row = harness.routeNativeElement!.querySelector('tbody tr')!;
     expect(row.textContent).toContain('Engineering');
@@ -30,25 +32,30 @@ describe('Dashboard navigation', () => {
     link.click();
     await harness.fixture.whenStable();
     expect(TestBed.inject(Router).url).toBe('/employee/7');
-    expect(harness.routeNativeElement?.textContent).toContain('coming soon');
+    http.expectOne('/employees?dep_id=7&page=0&size=20').flush([]);
+    http.expectNone('/departments');
+    harness.detectChanges();
+    expect(harness.routeNativeElement?.textContent).toContain('No employees found');
     expect(harness.routeNativeElement?.querySelector('app-header')).toBeTruthy();
     (harness.routeNativeElement!.querySelector('nav a') as HTMLAnchorElement).click();
     await harness.fixture.whenStable();
     expect(TestBed.inject(Router).url).toBe('/');
-    http.expectOne('/departments').flush([]);
+    http.expectOne('http://localhost:8080/departments').flush([]);
     harness.detectChanges();
     expect(harness.routeNativeElement?.textContent).toContain('No departments found');
   });
 
   it('shows an error and retries from the dashboard', async () => {
     const harness = await RouterTestingHarness.create('/');
-    http.expectOne('/departments').flush('Unavailable', { status: 503, statusText: 'Unavailable' });
+    http
+      .expectOne('http://localhost:8080/departments')
+      .flush('Unavailable', { status: 503, statusText: 'Unavailable' });
     harness.detectChanges();
     expect(harness.routeNativeElement?.querySelector('[role="alert"]')?.textContent).toContain(
       'Unable to load departments',
     );
     (harness.routeNativeElement!.querySelector('button') as HTMLButtonElement).click();
-    http.expectOne('/departments').flush([]);
+    http.expectOne('http://localhost:8080/departments').flush([]);
     harness.detectChanges();
     expect(harness.routeNativeElement?.textContent).toContain('No departments found');
   });
@@ -56,6 +63,7 @@ describe('Dashboard navigation', () => {
   it('supports opening an employee URL directly', async () => {
     const harness = await RouterTestingHarness.create('/employee/7');
     expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Employees');
-    http.expectNone('/departments');
+    http.expectOne('/departments').flush([{ id: 7, name: 'Engineering', totalEmployees: 0 }]);
+    http.expectOne('/employees?dep_id=7&page=0&size=20').flush([]);
   });
 });

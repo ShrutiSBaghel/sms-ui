@@ -19,8 +19,14 @@ request through `proxy.conf.json`; update its target if your backend uses a
 different address. Production hosting must forward `/departments` to the backend
 on the same origin as the UI.
 
-Home (`/`) lists departments. Select any department row to open its employee
-placeholder at `/employee/:departmentId`. The header includes a Login placeholder.
+Home (`/`) lists departments. Select any department row to view its employees
+at `/employee/:departmentId`. The employee list requests
+`GET /employees?dep_id={departmentId}&page={page}&size=20`, using zero-based page
+numbers. Pagination uses the department's `totalEmployees`; opening an employee
+URL directly also loads department metadata. The development proxy forwards
+`/employees` to the backend, and production hosting must forward this path too.
+Salary links open an empty salary structure dialog; filtering and salary
+downloads are not implemented. The header includes a Login placeholder.
 These pages render in the browser so builds do not need access to the backend.
 
 ## Code scaffolding
