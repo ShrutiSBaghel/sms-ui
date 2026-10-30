@@ -12,6 +12,17 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+The dashboard requests `GET /departments` and expects an array of
+`{ id: number, name: string, totalEmployees: number }`. Start the SMS backend on
+port 8080 before loading the dashboard. The development server forwards this
+request through `proxy.conf.json`; update its target if your backend uses a
+different address. Production hosting must forward `/departments` to the backend
+on the same origin as the UI.
+
+Home (`/`) lists departments. Select any department row to open its employee
+placeholder at `/employee/:departmentId`. The header includes a Login placeholder.
+These pages render in the browser so builds do not need access to the backend.
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:

@@ -1,0 +1,22 @@
+.eyebrow {
+  margin: 0 0 8px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+h1 {
+  margin: 0;
+  font-size: 32px;
+  letter-spacing: -0.03em;
+}
+.placeholder {
+  margin-top: 28px;
+  padding: 32px 20px;
+  border: 1px dashed #dce3eb;
+  border-radius: 12px;
+  color: #64748b;
+  text-align: center;
+  line-height: 1.6;
+}

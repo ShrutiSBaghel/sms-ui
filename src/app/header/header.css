@@ -1,0 +1,35 @@
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 36px;
+  border-bottom: 1px solid #e5eaf0;
+}
+a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 28px;
+  border: 1px solid #dce3eb;
+  border-radius: 10px;
+  color: #43536b;
+  font-weight: 600;
+  text-decoration: none;
+}
+a.active,
+a:hover {
+  background: #eef3ff;
+  border-color: #c9d7f7;
+  color: #284eab;
+}
+a:focus-visible {
+  outline: 3px solid #688ce3;
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  header {
+    padding: 16px;
+  }
+}

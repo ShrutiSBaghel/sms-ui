@@ -1,0 +1,45 @@
+<section aria-labelledby="dashboard-title">
+  <p class="eyebrow">Dashboard</p>
+  <h1 id="dashboard-title">Departments</h1>
+  <p class="description">Select a department to view its employees.</p>
+
+  @if (dashboard.loading()) {
+    <p class="status" role="status">Loading departments…</p>
+  } @else if (dashboard.error()) {
+    <div class="status error" role="alert">
+      <p>{{ dashboard.error() }}</p>
+      <button type="button" (click)="dashboard.loadDepartments()">Try again</button>
+    </div>
+  } @else if (dashboard.departments().length === 0) {
+    <p class="status" role="status">No departments found.</p>
+  } @else {
+    <div class="table-container">
+      <table>
+        <caption class="visually-hidden">
+          Departments and their total employees. Select a department to view employees.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col" class="employee-count">Total Employees</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (department of dashboard.departments(); track department.id) {
+            <tr>
+              <td>{{ department.id }}</td>
+              <td class="department-name">
+                <a [routerLink]="['/employee', department.id]">
+                  {{ department.name }}
+                  <span class="visually-hidden"> — view employees</span>
+                </a>
+              </td>
+              <td class="employee-count">{{ department.totalEmployees }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
