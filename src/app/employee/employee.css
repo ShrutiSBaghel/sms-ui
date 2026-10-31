@@ -12,6 +12,10 @@ h1 {
   letter-spacing: -0.03em;
 }
 .description {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   color: #64748b;
   line-height: 1.5;
 }
@@ -95,11 +99,19 @@ button:disabled {
 .pagination {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 24px;
   font-size: 14px;
+}
+.page-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
 }
 .visually-hidden {
   position: absolute;
@@ -114,8 +126,5 @@ button:disabled {
   td,
   th {
     padding: 14px 12px;
-  }
-  .pagination {
-    justify-content: center;
   }
 }

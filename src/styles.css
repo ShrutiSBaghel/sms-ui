@@ -1,6 +1,14 @@
 * {
   box-sizing: border-box;
 }
+html,
+body {
+  min-height: 100%;
+}
+app-root {
+  display: block;
+  min-height: 100dvh;
+}
 body {
   margin: 0;
   background: #f3f6fa;

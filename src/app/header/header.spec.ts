@@ -31,4 +31,23 @@ describe('Header', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('closes Profile on an outside click while preserving clicks inside the panel', () => {
+    const profile = fixture.nativeElement.querySelector('details') as HTMLDetailsElement;
+    profile.querySelector('summary')!.click();
+    expect(profile.open).toBe(true);
+    profile.querySelector<HTMLElement>('.profile-name')!.click();
+    expect(profile.open).toBe(true);
+    document.body.click();
+    expect(profile.open).toBe(false);
+  });
+
+  it('closes Profile with Escape and returns focus to the profile control', () => {
+    const profile = fixture.nativeElement.querySelector('details') as HTMLDetailsElement;
+    const summary = profile.querySelector('summary')!;
+    summary.click();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(profile.open).toBe(false);
+    expect(document.activeElement).toBe(summary);
+  });
 });

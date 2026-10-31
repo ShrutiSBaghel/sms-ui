@@ -100,4 +100,59 @@ describe('EmployeeService', () => {
     expect(service.error()).toContain('Department not found');
     expect(service.employees()).toEqual([]);
   });
+
+  it('loads every filter match without pagination and clear restores normal page zero', () => {
+    service.initialize();
+    http.expectOne('http://localhost:8080/departments').flush(departments);
+    employeesRequest().flush([]);
+    service.nextPage();
+    const pendingPage = employeesRequest(1);
+    service.applyFilters({ depId: 7, salary: 0, country: 'India', operator: 'AND' });
+    expect(pendingPage.cancelled).toBe(true);
+    const request = http.expectOne(
+      'http://localhost:8080/employees/filter?depId=7&operator=AND&salary=0&country=India',
+    );
+    expect(request.request.params.has('page')).toBe(false);
+    expect(request.request.params.has('size')).toBe(false);
+    const matches = Array.from({ length: 25 }, (_, id) => ({
+      id,
+      name: 'Employee',
+      departmentId: 7,
+      salary: 0,
+      country: 'India',
+      salaryStructureDto: null,
+    }));
+    request.flush(matches);
+    expect(service.employees()).toHaveLength(25);
+    expect(service.totalPages()).toBe(0);
+    expect(service.canPrevious()).toBe(false);
+    expect(service.canNext()).toBe(false);
+    service.clearFilters();
+    employeesRequest(0).flush([]);
+    expect(service.activeFilters()).toBeNull();
+    expect(service.totalPages()).toBe(3);
+    expect(service.page()).toBe(0);
+  });
+
+  it('retries the same filter and clears filters on a department change', () => {
+    service.initialize();
+    http.expectOne('http://localhost:8080/departments').flush(departments);
+    employeesRequest().flush([]);
+    service.applyFilters({ depId: 7, country: 'India', operator: 'AND' });
+    http
+      .expectOne('http://localhost:8080/employees/filter?depId=7&operator=AND&country=India')
+      .flush('Unavailable', { status: 503, statusText: 'Unavailable' });
+    expect(service.error()).toBeTruthy();
+    service.retry();
+    http
+      .expectOne('http://localhost:8080/employees/filter?depId=7&operator=AND&country=India')
+      .flush([]);
+    expect(service.error()).toBeNull();
+    params.next(convertToParamMap({ departmentId: '8' }));
+    http
+      .expectOne('http://localhost:8080/departments')
+      .flush([{ id: 8, name: 'HR', totalEmployees: 0 }]);
+    employeesRequest(0, 8).flush([]);
+    expect(service.activeFilters()).toBeNull();
+  });
 });

@@ -1,5 +1,4 @@
 <section aria-labelledby="employee-title">
-  <p class="eyebrow">Department employees</p>
   <h1 id="employee-title">Employees</h1>
   @if (employee.department(); as department) {
     <p class="description">{{ department.name }} · {{ department.totalEmployees }} employees</p>
@@ -53,12 +52,50 @@
 
   @if (employee.totalPages() > 0) {
     <nav class="pagination" aria-label="Employee pagination">
-      <button type="button" [disabled]="!employee.canPrevious()" (click)="employee.previousPage()">
-        Previous
+      <button
+        type="button"
+        class="page-button"
+        aria-label="Previous page"
+        title="Previous page"
+        [disabled]="!employee.canPrevious()"
+        (click)="employee.previousPage()"
+      >
+        <svg
+          aria-hidden="true"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="m15 6-6 6 6 6" />
+        </svg>
       </button>
       <span aria-live="polite">Page {{ employee.page() + 1 }} of {{ employee.totalPages() }}</span>
-      <button type="button" [disabled]="!employee.canNext()" (click)="employee.nextPage()">
-        Next
+      <button
+        type="button"
+        class="page-button"
+        aria-label="Next page"
+        title="Next page"
+        [disabled]="!employee.canNext()"
+        (click)="employee.nextPage()"
+      >
+        <svg
+          aria-hidden="true"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="m9 6 6 6-6 6" />
+        </svg>
       </button>
     </nav>
   }

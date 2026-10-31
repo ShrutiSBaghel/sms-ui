@@ -1,28 +1,20 @@
 :host {
   display: block;
-  padding: 32px 20px;
+  min-height: 100dvh;
 }
 .dashboard-shell {
-  max-width: 1040px;
-  min-height: calc(100dvh - 64px);
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100dvh;
   background: white;
-  border: 1px solid #dce3eb;
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 12px 40px #20334d08;
 }
 main {
+  flex: 1;
+  min-width: 0;
   padding: 36px;
 }
 @media (max-width: 600px) {
-  :host {
-    padding: 12px;
-  }
-  .dashboard-shell {
-    min-height: calc(100dvh - 24px);
-    border-radius: 18px;
-  }
   main {
     padding: 24px 16px;
   }

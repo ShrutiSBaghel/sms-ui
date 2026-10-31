@@ -29,7 +29,8 @@ describe('Login and guarded navigation', () => {
 
   it('shows Login at the root and redirects protected URLs without loading employee data', async () => {
     const harness = await RouterTestingHarness.create('/');
-    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Welcome back');
+    expect(harness.routeNativeElement?.querySelector('#username')).toBeTruthy();
+    expect(harness.routeNativeElement?.querySelector('#password')).toBeTruthy();
     expect(harness.routeNativeElement?.querySelector('app-header')).toBeNull();
     for (const url of ['/dashboard', '/employee/7']) {
       await harness.navigateByUrl(url);
