@@ -7,6 +7,7 @@ import { LoginService } from './login.service';
 const response = {
   authenticated: true,
   name: 'Verified account',
+  token: 'test.jwt.token',
   loginTime: '2026-10-31T10:15:30Z',
 };
 
@@ -35,6 +36,7 @@ describe('LoginService', () => {
     request.flush(response);
     expect(login.session()).toEqual({ name: response.name, loginTime: response.loginTime });
     expect(login.authenticated()).toBe(true);
+    expect(login.accessToken()).toBe(response.token);
     expect(login.loading()).toBe(false);
     expect(navigate).toHaveBeenCalledWith('/dashboard');
     expect(JSON.stringify(login.session())).not.toContain('password');
@@ -55,11 +57,13 @@ describe('LoginService', () => {
       .expectOne('http://localhost:8080/auth/login')
       .flush({ authenticated: false, name: null, loginTime: null });
     expect(login.session()).toBeNull();
+    expect(login.accessToken()).toBeNull();
     expect(navigate).not.toHaveBeenCalled();
   });
 
   it('rejects incomplete successful responses and keeps login state in memory only', () => {
     expect(login.session()).toBeNull();
+    expect(login.accessToken()).toBeNull();
     login.login('tester', 'password');
     http.expectOne('http://localhost:8080/auth/login').flush({ authenticated: true });
     expect(login.error()).toContain('incomplete');
@@ -72,6 +76,7 @@ describe('LoginService', () => {
     http.expectOne('http://localhost:8080/auth/login').flush(response);
     login.logout();
     expect(login.session()).toBeNull();
+    expect(login.accessToken()).toBeNull();
     expect(login.authenticated()).toBe(false);
     expect(login.error()).toBeNull();
     expect(login.loading()).toBe(false);

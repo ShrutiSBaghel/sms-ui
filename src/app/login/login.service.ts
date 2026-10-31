@@ -8,6 +8,7 @@ export interface LoginResponseDto {
   authenticated: boolean;
   name: string | null;
   loginTime: string | null;
+  token: string | null;
 }
 
 export interface LoginSession {
@@ -21,18 +22,21 @@ export class LoginService {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionState = signal<LoginSession | null>(null);
+  private readonly tokenState = signal<string | null>(null);
   private readonly loadingState = signal(false);
   private readonly errorState = signal<string | null>(null);
   private readonly logoutRequests = new Subject<void>();
 
   readonly session = this.sessionState.asReadonly();
-  readonly authenticated = computed(() => this.session() !== null);
+  readonly accessToken = this.tokenState.asReadonly();
+  readonly authenticated = computed(() => this.session() !== null && this.accessToken() !== null);
   readonly loading = this.loadingState.asReadonly();
   readonly error = this.errorState.asReadonly();
 
   login(name: string, password: string): void {
     if (this.loading()) return;
     this.sessionState.set(null);
+    this.tokenState.set(null);
     this.errorState.set(null);
     if (!name.trim() || !password.trim()) {
       this.errorState.set('Enter your username and password.');
@@ -53,10 +57,12 @@ export class LoginService {
           } else if (
             !response.name?.trim() ||
             !response.loginTime ||
-            !Number.isFinite(Date.parse(response.loginTime))
+            !Number.isFinite(Date.parse(response.loginTime)) ||
+            !response.token?.trim()
           ) {
             this.errorState.set('The login response is incomplete. Please try again.');
           } else {
+            this.tokenState.set(response.token);
             this.sessionState.set({ name: response.name, loginTime: response.loginTime });
             void this.router.navigateByUrl('/dashboard');
           }
@@ -76,6 +82,7 @@ export class LoginService {
   logout(): void {
     this.logoutRequests.next();
     this.sessionState.set(null);
+    this.tokenState.set(null);
     this.errorState.set(null);
     this.loadingState.set(false);
     void this.router.navigateByUrl('/', { replaceUrl: true });

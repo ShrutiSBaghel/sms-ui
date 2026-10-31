@@ -68,7 +68,12 @@ describe('Login and guarded navigation', () => {
     fillForm(harness.routeNativeElement!);
     http
       .expectOne('http://localhost:8080/auth/login')
-      .flush({ authenticated: true, name: 'Server Name', loginTime: '2026-10-31T10:15:30Z' });
+      .flush({
+        authenticated: true,
+        token: 'test.jwt.token',
+        name: 'Server Name',
+        loginTime: '2026-10-31T10:15:30Z',
+      });
     await harness.fixture.whenStable();
     expect(TestBed.inject(Router).url).toBe('/dashboard');
     http.expectOne('http://localhost:8080/departments').flush([]);
