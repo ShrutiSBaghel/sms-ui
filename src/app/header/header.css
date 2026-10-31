@@ -33,3 +33,71 @@ a:focus-visible {
     padding: 16px;
   }
 }
+.profile {
+  position: relative;
+}
+summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid #dce3eb;
+  border-radius: 24px;
+  background: #f7f9fc;
+  color: #43536b;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+summary:focus-visible {
+  outline: 3px solid #688ce3;
+  outline-offset: 3px;
+}
+.profile-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 12px);
+  z-index: 2;
+  width: min(280px, calc(100vw - 64px));
+  padding: 20px;
+  border: 1px solid #dce3eb;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 12px 32px #20334d1a;
+  overflow-wrap: anywhere;
+}
+.profile-name {
+  margin: 0 0 16px;
+  font-weight: 600;
+}
+.login-label {
+  margin: 0 0 6px;
+  color: #64748b;
+  font-size: 12px;
+}
+time {
+  font-size: 14px;
+}
+.logout {
+  display: block;
+  width: 100%;
+  min-height: 40px;
+  margin-top: 20px;
+  border: 1px solid #dce3eb;
+  border-radius: 8px;
+  background: white;
+  color: #284eab;
+  font: inherit;
+  cursor: pointer;
+}
+.logout:hover {
+  background: #eef3ff;
+}
+.logout:focus-visible {
+  outline: 3px solid #688ce3;
+  outline-offset: 3px;
+}

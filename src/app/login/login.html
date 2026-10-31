@@ -1,4 +1,48 @@
-<div class="login-placeholder" aria-label="Login placeholder">
-  <span class="avatar" aria-hidden="true">?</span>
-  <span>Login <small>Coming soon</small></span>
-</div>
+<main class="login-page">
+  <section class="login-card" aria-labelledby="login-title">
+    <p class="eyebrow">Salary management</p>
+    <h1 id="login-title">Welcome back</h1>
+    <p class="description">Sign in to view your departments and employees.</p>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label for="username">Username</label>
+      <input
+        id="username"
+        type="text"
+        formControlName="name"
+        autocomplete="username"
+        required
+        [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid"
+        aria-describedby="username-error"
+      />
+      <div id="username-error" class="field-error">
+        @if (form.controls.name.touched && form.controls.name.invalid) {
+          Enter your username.
+        }
+      </div>
+      <label for="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+        required
+        [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid"
+        aria-describedby="password-error"
+      />
+      <div id="password-error" class="field-error">
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          Enter your password.
+        }
+      </div>
+      @if (login.error()) {
+        <p class="error" role="alert">{{ login.error() }}</p>
+      }
+      @if (login.loading()) {
+        <p class="status" role="status">Signing in…</p>
+      }
+      <button type="submit" [disabled]="login.loading()">
+        {{ login.loading() ? 'Signing in…' : 'Sign in' }}
+      </button>
+    </form>
+  </section>
+</main>

@@ -1,12 +1,22 @@
 <header>
   <nav aria-label="Main navigation">
     <a
-      routerLink="/"
+      routerLink="/dashboard"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
       ariaCurrentWhenActive="page"
       >Home</a
     >
   </nav>
-  <app-login />
+  <details class="profile">
+    <summary>Profile</summary>
+    <section class="profile-panel" aria-label="Profile details">
+      @if (login.session(); as user) {
+        <p class="profile-name">{{ user.name }}</p>
+        <p class="login-label">Logged in</p>
+        <time [attr.datetime]="user.loginTime">{{ user.loginTime | date: 'medium' }}</time>
+        <button type="button" class="logout" (click)="login.logout()">Logout</button>
+      }
+    </section>
+  </details>
 </header>
