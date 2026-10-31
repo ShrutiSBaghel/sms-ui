@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { EMPTY, Subject, catchError, forkJoin, of, startWith, switchMap, tap } from 'rxjs';
 import { DashboardService, DepartmentDto } from '../dashboard/dashboard.service';
+import type { SalaryStructureDto } from '../salary-structure-dialog/salary-structure-dialog.service';
 
 export interface EmployeeDto {
   id: number;
@@ -11,6 +12,7 @@ export interface EmployeeDto {
   departmentId: number;
   salary: number;
   country: string;
+  salaryStructureDto: SalaryStructureDto | null;
 }
 
 @Injectable()
@@ -74,11 +76,11 @@ export class EmployeeService {
                 this.dashboard.departments().find((department) => department.id === departmentId);
               const departments = cached
                 ? of([cached])
-                : this.http.get<DepartmentDto[]>('/departments');
+                : this.http.get<DepartmentDto[]>('http://localhost:8080/departments');
 
               return forkJoin({
                 departments,
-                employees: this.http.get<EmployeeDto[]>('/employees', {
+                employees: this.http.get<EmployeeDto[]>('http://localhost:8080/employees', {
                   params: { dep_id: departmentId, page, size: this.pageSize },
                 }),
               }).pipe(

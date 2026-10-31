@@ -31,7 +31,7 @@ describe('EmployeeService', () => {
   function employeesRequest(page = 0, departmentId = 7) {
     return http.expectOne(
       (request) =>
-        request.url === '/employees' &&
+        request.url === 'http://localhost:8080/employees' &&
         request.params.get('dep_id') === String(departmentId) &&
         request.params.get('page') === String(page) &&
         request.params.get('size') === '20',
@@ -41,33 +41,35 @@ describe('EmployeeService', () => {
   it('uses department totals for page count and stops at the final page', () => {
     service.initialize();
     expect(service.loading()).toBe(true);
-    http.expectOne('/departments').flush(departments);
+    http.expectOne('http://localhost:8080/departments').flush(departments);
     employeesRequest().flush([]);
     expect(service.totalPages()).toBe(3);
     expect(service.canPrevious()).toBe(false);
     service.previousPage();
-    http.expectNone('/employees');
+    http.expectNone('http://localhost:8080/employees');
     service.nextPage();
     employeesRequest(1).flush([]);
     service.nextPage();
     employeesRequest(2).flush([]);
     expect(service.canNext()).toBe(false);
     service.nextPage();
-    http.expectNone('/employees');
+    http.expectNone('http://localhost:8080/employees');
     service.previousPage();
     employeesRequest(1).flush([]);
     expect(service.page()).toBe(1);
-    http.expectNone('/departments');
+    http.expectNone('http://localhost:8080/departments');
   });
 
   it('cancels old requests and resets pagination when the route changes', () => {
     service.initialize();
-    const oldDepartments = http.expectOne('/departments');
+    const oldDepartments = http.expectOne('http://localhost:8080/departments');
     const oldEmployees = employeesRequest();
     params.next(convertToParamMap({ departmentId: '8' }));
     expect(oldDepartments.cancelled).toBe(true);
     expect(oldEmployees.cancelled).toBe(true);
-    http.expectOne('/departments').flush([{ id: 8, name: 'HR', totalEmployees: 1 }]);
+    http
+      .expectOne('http://localhost:8080/departments')
+      .flush([{ id: 8, name: 'HR', totalEmployees: 1 }]);
     employeesRequest(0, 8).flush([
       { id: 3, name: 'Alice', departmentId: 8, salary: 1000, country: 'India' },
     ]);
@@ -78,22 +80,22 @@ describe('EmployeeService', () => {
 
   it('retries failed requests and rejects invalid department IDs', () => {
     service.initialize();
-    http.expectOne('/departments').flush(departments);
+    http.expectOne('http://localhost:8080/departments').flush(departments);
     employeesRequest().flush('Unavailable', { status: 503, statusText: 'Unavailable' });
     expect(service.error()).toContain('Unable to load employees');
     expect(service.loading()).toBe(false);
     service.retry();
-    http.expectOne('/departments').flush(departments);
+    http.expectOne('http://localhost:8080/departments').flush(departments);
     employeesRequest().flush([]);
     expect(service.error()).toBeNull();
     params.next(convertToParamMap({ departmentId: 'abc' }));
     expect(service.error()).toContain('Invalid department');
-    http.expectNone('/employees');
+    http.expectNone('http://localhost:8080/employees');
   });
 
   it('reports a missing department without displaying employees', () => {
     service.initialize();
-    http.expectOne('/departments').flush([]);
+    http.expectOne('http://localhost:8080/departments').flush([]);
     employeesRequest().flush([]);
     expect(service.error()).toContain('Department not found');
     expect(service.employees()).toEqual([]);

@@ -1,11 +1,75 @@
-<dialog #dialog aria-label="Salary structure" (close)="restoreFocus()">
-  <button
-    type="button"
-    class="close"
-    aria-label="Close salary structure dialog"
-    (click)="close()"
-    autofocus
-  >
-    Close
-  </button>
+<dialog #dialog aria-labelledby="salary-title" (close)="restoreFocus()">
+  <header>
+    <h2 id="salary-title">Salary structure</h2>
+    <button
+      type="button"
+      class="close"
+      aria-label="Close salary structure dialog"
+      (click)="close()"
+      autofocus
+    >
+      Close
+    </button>
+  </header>
+  @if (salary.employee(); as person) {
+    <p class="employee-details">
+      {{ person.name }} <span>Employee ID: {{ person.id }}</span>
+    </p>
+    @if (salary.structure(); as structure) {
+      <table>
+        <caption class="visually-hidden">
+          Salary breakdown for
+          {{
+            person.name
+          }}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Component</th>
+            <th scope="col" class="amount">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Fixed Pay</th>
+            <td>{{ structure.fixedPay | number: '1.2-2' }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Variable Pay</th>
+            <td>{{ structure.variablePay | number: '1.2-2' }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Bonuses</th>
+            <td>{{ structure.bonuses | number: '1.2-2' }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Deduction</th>
+            <td>{{ structure.deduction | number: '1.2-2' }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row">Total Salary</th>
+            <td>{{ salary.total() | number: '1.2-2' }}</td>
+          </tr>
+        </tfoot>
+      </table>
+      <p class="calculation">Total = Fixed Pay + Variable Pay + Bonuses − Deduction</p>
+    } @else {
+      <p class="unavailable" role="status">Salary structure not available for this employee.</p>
+    }
+    @if (salary.downloadError()) {
+      <p class="error" role="alert">{{ salary.downloadError() }}</p>
+    }
+    <footer>
+      <button
+        type="button"
+        class="download"
+        [disabled]="!salary.structure()"
+        (click)="salary.downloadCsv()"
+      >
+        Download CSV
+      </button>
+    </footer>
+  }
 </dialog>

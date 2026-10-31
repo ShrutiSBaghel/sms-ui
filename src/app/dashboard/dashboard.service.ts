@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ControllerService } from '../controller/controller.service';
 
 export interface DepartmentDto {
   id: number;
@@ -12,7 +13,6 @@ export interface DepartmentDto {
   providedIn: 'root',
 })
 export class DashboardService {
-  private readonly http = inject(HttpClient);
   private readonly destroyRef = inject(DestroyRef);
   private readonly departmentState = signal<DepartmentDto[]>([]);
   private readonly loadingState = signal(false);
@@ -22,14 +22,15 @@ export class DashboardService {
   readonly loading = this.loadingState.asReadonly();
   readonly error = this.errorState.asReadonly();
 
+  controller = inject(ControllerService);
+
   loadDepartments(): void {
     if (this.loadingState()) return;
 
     this.loadingState.set(true);
     this.errorState.set(null);
 
-    this.http
-      .get<DepartmentDto[]>('http://localhost:8080/departments')
+    this.controller.getAllDepartments()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (departments) => {

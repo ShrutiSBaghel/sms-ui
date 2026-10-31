@@ -20,7 +20,6 @@
         </caption>
         <thead>
           <tr>
-            <th scope="col">ID</th>
             <th scope="col">Name</th>
             <th scope="col" class="employee-count">Total Employees</th>
           </tr>
@@ -28,7 +27,6 @@
         <tbody>
           @for (department of dashboard.departments(); track department.id) {
             <tr>
-              <td>{{ department.id }}</td>
               <td class="department-name">
                 <a [routerLink]="['/employee', department.id]">
                   {{ department.name }}
