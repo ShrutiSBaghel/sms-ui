@@ -38,6 +38,17 @@
             }
           },
           "configurations": {
+            "vercel": {
+              "server": false,
+              "ssr": false,
+              "outputMode": "static",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.vercel.ts"
+                }
+              ]
+            },
             "production": {
               "budgets": [
                 {

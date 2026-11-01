@@ -1,4 +1,5 @@
 import { HttpClient } from '@angular/common/http';
+import { API_BASE_URL } from '../api.config';
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
@@ -18,6 +19,7 @@ export interface EmployeeDto {
 @Injectable()
 export class EmployeeService {
   private readonly http = inject(HttpClient);
+  private readonly apiBaseUrl = inject(API_BASE_URL);
   private readonly route = inject(ActivatedRoute);
   private readonly dashboard = inject(DashboardService);
   private readonly destroyRef = inject(DestroyRef);
@@ -76,11 +78,11 @@ export class EmployeeService {
                 this.dashboard.departments().find((department) => department.id === departmentId);
               const departments = cached
                 ? of([cached])
-                : this.http.get<DepartmentDto[]>('http://localhost:8080/departments');
+                : this.http.get<DepartmentDto[]>(`${this.apiBaseUrl}/departments`);
 
               return forkJoin({
                 departments,
-                employees: this.http.get<EmployeeDto[]>('http://localhost:8080/employees', {
+                employees: this.http.get<EmployeeDto[]>(`${this.apiBaseUrl}/employees`, {
                   params: { dep_id: departmentId, page, size: this.pageSize },
                 }),
               }).pipe(

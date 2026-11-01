@@ -1,4 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { API_BASE_URL } from '../api.config';
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
@@ -19,6 +20,7 @@ export interface LoginSession {
 @Injectable({ providedIn: 'root' })
 export class LoginService {
   private readonly http = inject(HttpClient);
+  private readonly apiBaseUrl = inject(API_BASE_URL);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly sessionState = signal<LoginSession | null>(null);
@@ -44,7 +46,7 @@ export class LoginService {
     }
     this.loadingState.set(true);
     this.http
-      .post<LoginResponseDto>('http://localhost:8080/auth/login', { name: name.trim(), password })
+      .post<LoginResponseDto>(`${this.apiBaseUrl}/auth/login`, { name: name.trim(), password })
       .pipe(
         takeUntil(this.logoutRequests),
         takeUntilDestroyed(this.destroyRef),

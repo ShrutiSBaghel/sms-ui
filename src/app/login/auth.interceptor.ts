@@ -2,15 +2,17 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { LoginService } from './login.service';
+import { API_BASE_URL } from '../api.config';
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
+  const apiOrigin = inject(API_BASE_URL);
   let url: URL;
   try {
     url = new URL(request.url);
   } catch {
     return next(request);
   }
-  if (url.origin !== 'http://localhost:8080' || url.pathname === '/auth/login') {
+  if (url.origin !== apiOrigin || url.pathname === '/auth/login') {
     return next(request);
   }
 

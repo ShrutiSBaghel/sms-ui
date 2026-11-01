@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "include": [
+    "src/**/*.d.ts",
+    "src/app/login/*.spec.ts",
+    "src/app/dashboard/dashboard.service.spec.ts",
+    "src/app/report/*.spec.ts",
+    "src/app/salary-distribution-chart/*.spec.ts"
+  ]
+}

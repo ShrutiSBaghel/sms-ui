@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { authInterceptor } from './auth.interceptor';
 import { LoginService } from './login.service';
+import { API_BASE_URL } from '../api.config';
 
 describe('authInterceptor', () => {
   let client: HttpClient;
@@ -13,6 +14,7 @@ describe('authInterceptor', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
+        { provide: API_BASE_URL, useValue: 'https://sms-api-test.vercel.app' },
         provideRouter([]),
         provideHttpClient(withInterceptors([authInterceptor])),
         provideHttpClientTesting(),
@@ -28,7 +30,7 @@ describe('authInterceptor', () => {
 
   function signIn(token = 'test.jwt.token') {
     login.login('tester', 'test-password');
-    const request = http.expectOne('http://localhost:8080/auth/login');
+    const request = http.expectOne('https://sms-api-test.vercel.app/auth/login');
     expect(request.request.headers.has('Authorization')).toBe(false);
     request.flush({
       authenticated: true,
@@ -40,13 +42,15 @@ describe('authInterceptor', () => {
 
   it('adds the token to backend API requests only', () => {
     signIn();
-    client.get('http://localhost:8080/departments').subscribe();
-    const api = http.expectOne('http://localhost:8080/departments');
+    client.get('https://sms-api-test.vercel.app/departments').subscribe();
+    const api = http.expectOne('https://sms-api-test.vercel.app/departments');
     expect(api.request.headers.get('Authorization')).toBe('Bearer test.jwt.token');
     api.flush([]);
     for (const url of [
       'https://example.com/data',
-      'http://localhost:8080.example.com/data',
+      'http://localhost:8080/departments',
+      'https://sms-api-test.vercel.app.evil.example/data',
+      'https://sms-api-test.vercel.app.example.com/data',
       '/assets/data.json',
     ]) {
       client.get(url).subscribe();
@@ -57,13 +61,13 @@ describe('authInterceptor', () => {
   });
 
   it('does not attach a token to login or unauthenticated requests', () => {
-    client.get('http://localhost:8080/departments').subscribe();
-    const anonymous = http.expectOne('http://localhost:8080/departments');
+    client.get('https://sms-api-test.vercel.app/departments').subscribe();
+    const anonymous = http.expectOne('https://sms-api-test.vercel.app/departments');
     expect(anonymous.request.headers.has('Authorization')).toBe(false);
     anonymous.flush([]);
     signIn();
     login.login('tester', 'incorrect');
-    const request = http.expectOne('http://localhost:8080/auth/login');
+    const request = http.expectOne('https://sms-api-test.vercel.app/auth/login');
     expect(request.request.headers.has('Authorization')).toBe(false);
     request.flush({}, { status: 401, statusText: 'Unauthorized' });
     expect(login.error()).toBe('Incorrect username or password.');
@@ -72,9 +76,9 @@ describe('authInterceptor', () => {
 
   it('clears the current session and returns to login on an API 401', () => {
     signIn();
-    client.get('http://localhost:8080/departments').subscribe({ error: () => {} });
+    client.get('https://sms-api-test.vercel.app/departments').subscribe({ error: () => {} });
     http
-      .expectOne('http://localhost:8080/departments')
+      .expectOne('https://sms-api-test.vercel.app/departments')
       .flush({}, { status: 401, statusText: 'Unauthorized' });
     expect(login.accessToken()).toBeNull();
     expect(login.authenticated()).toBe(false);
@@ -85,14 +89,14 @@ describe('authInterceptor', () => {
 
   it('ignores a stale 401 after another login and preserves sessions on other errors', () => {
     signIn('old-token');
-    client.get('http://localhost:8080/departments').subscribe({ error: () => {} });
-    const stale = http.expectOne('http://localhost:8080/departments');
+    client.get('https://sms-api-test.vercel.app/departments').subscribe({ error: () => {} });
+    const stale = http.expectOne('https://sms-api-test.vercel.app/departments');
     signIn('new-token');
     stale.flush({}, { status: 401, statusText: 'Unauthorized' });
     expect(login.accessToken()).toBe('new-token');
-    client.get('http://localhost:8080/employees').subscribe({ error: () => {} });
+    client.get('https://sms-api-test.vercel.app/employees').subscribe({ error: () => {} });
     http
-      .expectOne('http://localhost:8080/employees')
+      .expectOne('https://sms-api-test.vercel.app/employees')
       .flush({}, { status: 500, statusText: 'Server error' });
     expect(login.authenticated()).toBe(true);
   });
@@ -100,8 +104,8 @@ describe('authInterceptor', () => {
   it('does not send the previous token after logout', () => {
     signIn();
     login.logout();
-    client.get('http://localhost:8080/departments').subscribe();
-    const request = http.expectOne('http://localhost:8080/departments');
+    client.get('https://sms-api-test.vercel.app/departments').subscribe();
+    const request = http.expectOne('https://sms-api-test.vercel.app/departments');
     expect(request.request.headers.has('Authorization')).toBe(false);
     request.flush([]);
   });
