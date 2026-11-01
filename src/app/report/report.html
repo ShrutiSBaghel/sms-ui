@@ -1,0 +1,48 @@
+<h1>INSIGHTS</h1>
+<section aria-labelledby="distribution-title" [attr.aria-busy]="report.loading()">
+  <div class="report-heading">
+    <h2 id="distribution-title">Salary allocation by {{ report.grouping() }}</h2>
+    <div class="grouping">
+      <label for="report-grouping">Group by</label>
+      <select
+        id="report-grouping"
+        #grouping
+        [value]="report.grouping()"
+        (change)="report.load(grouping.value)"
+      >
+        <option value="department">Department</option>
+        <option value="country">Country</option>
+      </select>
+    </div>
+  </div>
+  <p class="note">
+    Salary amounts are shown as recorded. Comparisons assume a common currency and pay period.
+  </p>
+  @if (report.loading()) {
+    <p class="status" role="status">Loading salary distribution…</p>
+  } @else if (report.error()) {
+    <div class="status error" role="alert">
+      <p>{{ report.error() }}</p>
+      <button type="button" (click)="report.load()">Try again</button>
+    </div>
+  } @else if (report.report(); as data) {
+    @if (data.groups.length === 0) {
+      <p class="status" role="status">No employees available to report on.</p>
+    } @else {
+      <p class="summary">
+        Total salary: <strong>{{ data.totalSalary | number: '1.2-2' }}</strong>
+        <span> · {{ data.employeeCount | number }} employees</span>
+      </p>
+      @if (data.missingSalaryCount > 0) {
+        <p class="notice" role="status">
+          {{ data.missingSalaryCount }} employees have no salary recorded. They are counted in
+          headcount but excluded from salary totals.
+        </p>
+      }
+      @if (data.totalSalary === 0) {
+        <p class="notice">The total salary is zero. Percentage shares are shown as zero.</p>
+      }
+      <app-salary-distribution-chart [groups]="data.groups" [grouping]="report.grouping()" />
+    }
+  }
+</section>

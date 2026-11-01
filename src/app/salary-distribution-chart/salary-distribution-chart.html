@@ -1,0 +1,39 @@
+<div class="chart-scroll">
+  <div class="chart-container" [style.height.px]="groups().length * 52 + 80">
+    <canvas
+      #canvas
+      role="img"
+      [attr.aria-label]="
+        'Salary allocation by ' + grouping() + '. Exact values follow in the accessible table.'
+      "
+    ></canvas>
+  </div>
+</div>
+<table class="visually-hidden">
+  <caption>
+    Salary allocation by
+    {{
+      grouping()
+    }}
+  </caption>
+  <thead>
+    <tr>
+      <th scope="col">Group</th>
+      <th scope="col">Total salary</th>
+      <th scope="col">Share (%)</th>
+      <th scope="col">Employees</th>
+      <th scope="col">Missing salaries</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (group of groups(); track group.key) {
+      <tr>
+        <th scope="row">{{ group.label }}</th>
+        <td>{{ group.totalSalary | number: '1.2-2' }}</td>
+        <td>{{ group.percentage | number: '1.2-2' }}</td>
+        <td>{{ group.employeeCount }}</td>
+        <td>{{ group.missingSalaryCount }}</td>
+      </tr>
+    }
+  </tbody>
+</table>

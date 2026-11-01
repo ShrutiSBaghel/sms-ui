@@ -1,0 +1,21 @@
+:host {
+  display: block;
+}
+.chart-scroll {
+  max-height: 640px;
+  overflow: auto;
+}
+.chart-container {
+  position: relative;
+  min-height: 280px;
+  min-width: 300px;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
