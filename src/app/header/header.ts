@@ -1,7 +1,8 @@
 import { DatePipe } from '@angular/common';
-import { Component, ElementRef, inject, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, viewChild } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { LoginService } from '../login/login.service';
+import { HeaderService } from './header.service';
 
 @Component({
   selector: 'app-header',
@@ -15,7 +16,12 @@ import { LoginService } from '../login/login.service';
 })
 export class Header {
   protected readonly login = inject(LoginService);
+  protected readonly header = inject(HeaderService);
   private readonly profile = viewChild.required<ElementRef<HTMLDetailsElement>>('profile');
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.header.dismissNotification());
+  }
 
   protected closeProfileOutside(event: MouseEvent): void {
     const profile = this.profile().nativeElement;

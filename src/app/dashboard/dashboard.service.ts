@@ -24,13 +24,18 @@ export class DashboardService {
 
   controller = inject(ControllerService);
 
+  invalidateDepartments(): void {
+    this.departmentState.set([]);
+  }
+
   loadDepartments(): void {
     if (this.loadingState()) return;
 
     this.loadingState.set(true);
     this.errorState.set(null);
 
-    this.controller.getAllDepartments()
+    this.controller
+      .getAllDepartments()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (departments) => {

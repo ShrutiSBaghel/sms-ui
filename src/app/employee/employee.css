@@ -25,6 +25,53 @@ h1 {
   border: 1px solid #e2e8f0;
   border-radius: 12px;
 }
+.new-employee {
+  flex-shrink: 0;
+  padding: 8px 20px;
+  border: 1px solid #284eab;
+  border-radius: 8px;
+  background: #284eab;
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.new-employee:focus-visible {
+  outline: 3px solid #688ce3;
+  outline-offset: 3px;
+}
+.edit-employee,
+.delete-employee {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  min-height: 36px;
+  padding: 8px;
+  border: 1px solid #dce3eb;
+  border-radius: 8px;
+  background: white;
+  color: #284eab;
+  font: inherit;
+  cursor: pointer;
+}
+.edit-employee:hover {
+  background: #eef3ff;
+}
+.row-actions {
+  white-space: nowrap;
+}
+.delete-employee {
+  margin-left: 8px;
+  color: #a12d37;
+}
+.delete-employee:hover {
+  background: #fff1f2;
+}
+.edit-employee:focus-visible {
+  outline: 3px solid #688ce3;
+  outline-offset: 3px;
+}
 table {
   width: 100%;
   border-collapse: collapse;

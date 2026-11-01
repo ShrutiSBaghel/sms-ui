@@ -24,13 +24,13 @@ describe('ReportService', () => {
     expect(first.cancelled).toBe(true);
     http.expectOne('http://localhost:8080/reports/salary-distribution?groupBy=country').flush({
       groupBy: 'country',
-      totalSalary: 100,
+      averageSalary: 100,
       employeeCount: 1,
       missingSalaryCount: 0,
       groups: [],
     });
     expect(service.grouping()).toBe('country');
-    expect(service.report()?.totalSalary).toBe(100);
+    expect(service.report()?.averageSalary).toBe(100);
     expect(service.loading()).toBe(false);
   });
 
@@ -44,15 +44,13 @@ describe('ReportService', () => {
     expect(service.loading()).toBe(false);
     service.load();
     expect(service.error()).toBeNull();
-    http
-      .expectOne('http://localhost:8080/reports/salary-distribution?groupBy=country')
-      .flush({
-        groupBy: 'country',
-        totalSalary: 0,
-        employeeCount: 0,
-        missingSalaryCount: 0,
-        groups: [],
-      });
+    http.expectOne('http://localhost:8080/reports/salary-distribution?groupBy=country').flush({
+      groupBy: 'country',
+      averageSalary: 0,
+      employeeCount: 0,
+      missingSalaryCount: 0,
+      groups: [],
+    });
     expect(service.report()?.groups).toEqual([]);
   });
 });

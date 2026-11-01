@@ -29,6 +29,7 @@ describe('Dashboard navigation', () => {
 
   afterEach(() => http.verify());
 
+  // The first navigation loads the real lazy route chunks as well as rendering the page.
   it('shows departments by default, routes to employees, and returns Home', async () => {
     const harness = await RouterTestingHarness.create('/dashboard');
     expect(harness.routeNativeElement?.textContent).toContain('Loading departments');
@@ -55,7 +56,7 @@ describe('Dashboard navigation', () => {
     http.expectOne('http://localhost:8080/departments').flush([]);
     harness.detectChanges();
     expect(harness.routeNativeElement?.textContent).toContain('No departments found');
-  });
+  }, 15000);
 
   it('shows an error and retries from the dashboard', async () => {
     const harness = await RouterTestingHarness.create('/dashboard');

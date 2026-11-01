@@ -8,14 +8,13 @@ export type ReportGrouping = 'department' | 'country';
 export interface SalaryGroup {
   key: string;
   label: string;
-  totalSalary: number;
+  averageSalary: number | null;
   employeeCount: number;
   missingSalaryCount: number;
-  percentage: number;
 }
 export interface SalaryDistribution {
   groupBy: ReportGrouping;
-  totalSalary: number;
+  averageSalary: number | null;
   employeeCount: number;
   missingSalaryCount: number;
   groups: SalaryGroup[];

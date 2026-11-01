@@ -25,4 +25,29 @@
       }
     </section>
   </details>
+  @if (header.notification(); as message) {
+    <aside class="notification" role="status" aria-live="polite">
+      <span>{{ message }}</span>
+      <button
+        type="button"
+        class="notification-close"
+        aria-label="Dismiss notification"
+        title="Close"
+        (click)="header.dismissNotification()"
+      >
+        <svg
+          aria-hidden="true"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <path d="m6 6 12 12M18 6 6 18" />
+        </svg>
+      </button>
+    </aside>
+  }
 </header>

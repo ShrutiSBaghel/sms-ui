@@ -1,0 +1,52 @@
+<dialog
+  #dialog
+  aria-labelledby="delete-title"
+  aria-describedby="delete-question"
+  (close)="restoreFocus()"
+  (cancel)="onCancel($event)"
+>
+  <header>
+    <h2 id="delete-title">Delete employee</h2>
+    <button
+      type="button"
+      class="close"
+      aria-label="Close delete employee dialog"
+      title="Close"
+      autofocus
+      [disabled]="deletion.deleting()"
+      (click)="close()"
+    >
+      <svg
+        aria-hidden="true"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+      >
+        <path d="m6 6 12 12M18 6 6 18" />
+      </svg>
+    </button>
+  </header>
+  @if (deletion.employee(); as employee) {
+    <p id="delete-question">Are you sure, you want to delete {{ employee.name }} ?</p>
+  }
+  @if (deletion.error()) {
+    <p class="error" role="alert">{{ deletion.error() }}</p>
+  }
+  @if (deletion.deleting()) {
+    <p role="status">Deleting employee…</p>
+  }
+  <footer>
+    <button
+      type="button"
+      class="confirm-delete"
+      [disabled]="deletion.deleting() || deletion.deleted()"
+      (click)="deletion.confirm()"
+    >
+      OK
+    </button>
+  </footer>
+</dialog>

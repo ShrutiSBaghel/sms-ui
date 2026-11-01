@@ -6,7 +6,7 @@ import { Report } from './report';
 import { SalaryDistributionChart } from '../salary-distribution-chart/salary-distribution-chart';
 
 describe('Report', () => {
-  it('loads department totals, changes grouping, and offers retry for failures', async () => {
+  it('loads department averages, changes grouping, and offers retry for failures', async () => {
     TestBed.configureTestingModule({
       imports: [Report],
       providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
@@ -17,15 +17,13 @@ describe('Report', () => {
     const http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Loading salary');
-    http
-      .expectOne('http://localhost:8080/reports/salary-distribution?groupBy=department')
-      .flush({
-        groupBy: 'department',
-        totalSalary: 0,
-        employeeCount: 0,
-        missingSalaryCount: 0,
-        groups: [],
-      });
+    http.expectOne('http://localhost:8080/reports/salary-distribution?groupBy=department').flush({
+      groupBy: 'department',
+      averageSalary: 0,
+      employeeCount: 0,
+      missingSalaryCount: 0,
+      groups: [],
+    });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('No employees');
     const select = fixture.nativeElement.querySelector('select') as HTMLSelectElement;
@@ -39,15 +37,13 @@ describe('Report', () => {
       'Unable to load',
     );
     fixture.nativeElement.querySelector('button').click();
-    http
-      .expectOne('http://localhost:8080/reports/salary-distribution?groupBy=country')
-      .flush({
-        groupBy: 'country',
-        totalSalary: 0,
-        employeeCount: 0,
-        missingSalaryCount: 0,
-        groups: [],
-      });
+    http.expectOne('http://localhost:8080/reports/salary-distribution?groupBy=country').flush({
+      groupBy: 'country',
+      averageSalary: 0,
+      employeeCount: 0,
+      missingSalaryCount: 0,
+      groups: [],
+    });
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('h2').textContent).toContain('country');
     http.verify();

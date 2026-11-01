@@ -101,58 +101,64 @@ describe('EmployeeService', () => {
     expect(service.employees()).toEqual([]);
   });
 
-  it('loads every filter match without pagination and clear restores normal page zero', () => {
+  it('returns to the preceding page when deletion removes the final row of the last page', () => {
+    service.initialize();
+    http
+      .expectOne('http://localhost:8080/departments')
+      .flush([{ ...departments[0], totalEmployees: 21 }]);
+    employeesRequest().flush([]);
+    service.nextPage();
+    employeesRequest(1).flush([{ id: 21, name: 'Last employee' }]);
+    service.refresh();
+    http
+      .expectOne('http://localhost:8080/departments')
+      .flush([{ ...departments[0], totalEmployees: 20 }]);
+    employeesRequest(1).flush([]);
+    expect(service.loading()).toBe(true);
+    employeesRequest(0).flush([{ id: 1, name: 'Remaining employee' }]);
+    expect(service.page()).toBe(0);
+    expect(service.totalPages()).toBe(1);
+    expect(service.employees()[0].name).toBe('Remaining employee');
+    expect(service.loading()).toBe(false);
+    http.expectNone('http://localhost:8080/departments');
+  });
+
+  it('shows an empty department after deleting its only employee', () => {
+    service.initialize();
+    http
+      .expectOne('http://localhost:8080/departments')
+      .flush([{ ...departments[0], totalEmployees: 1 }]);
+    employeesRequest().flush([{ id: 1, name: 'Only employee' }]);
+    service.refresh();
+    http
+      .expectOne('http://localhost:8080/departments')
+      .flush([{ ...departments[0], totalEmployees: 0 }]);
+    employeesRequest().flush([]);
+    expect(service.totalPages()).toBe(0);
+    expect(service.page()).toBe(0);
+    expect(service.employees()).toEqual([]);
+    expect(service.error()).toBeNull();
+  });
+
+  it('refreshes department totals after creation while keeping the current page, including on retry', () => {
     service.initialize();
     http.expectOne('http://localhost:8080/departments').flush(departments);
     employeesRequest().flush([]);
     service.nextPage();
-    const pendingPage = employeesRequest(1);
-    service.applyFilters({ depId: 7, salary: 0, country: 'India', operator: 'AND' });
-    expect(pendingPage.cancelled).toBe(true);
-    const request = http.expectOne(
-      'http://localhost:8080/employees/filter?depId=7&operator=AND&salary=0&country=India',
-    );
-    expect(request.request.params.has('page')).toBe(false);
-    expect(request.request.params.has('size')).toBe(false);
-    const matches = Array.from({ length: 25 }, (_, id) => ({
-      id,
-      name: 'Employee',
-      departmentId: 7,
-      salary: 0,
-      country: 'India',
-      salaryStructureDto: null,
-    }));
-    request.flush(matches);
-    expect(service.employees()).toHaveLength(25);
-    expect(service.totalPages()).toBe(0);
-    expect(service.canPrevious()).toBe(false);
-    expect(service.canNext()).toBe(false);
-    service.clearFilters();
-    employeesRequest(0).flush([]);
-    expect(service.activeFilters()).toBeNull();
-    expect(service.totalPages()).toBe(3);
-    expect(service.page()).toBe(0);
-  });
-
-  it('retries the same filter and clears filters on a department change', () => {
-    service.initialize();
-    http.expectOne('http://localhost:8080/departments').flush(departments);
-    employeesRequest().flush([]);
-    service.applyFilters({ depId: 7, country: 'India', operator: 'AND' });
-    http
-      .expectOne('http://localhost:8080/employees/filter?depId=7&operator=AND&country=India')
-      .flush('Unavailable', { status: 503, statusText: 'Unavailable' });
-    expect(service.error()).toBeTruthy();
-    service.retry();
-    http
-      .expectOne('http://localhost:8080/employees/filter?depId=7&operator=AND&country=India')
-      .flush([]);
-    expect(service.error()).toBeNull();
-    params.next(convertToParamMap({ departmentId: '8' }));
+    employeesRequest(1).flush([]);
+    service.refresh();
+    expect(service.department()?.name).toBe('Engineering');
     http
       .expectOne('http://localhost:8080/departments')
-      .flush([{ id: 8, name: 'HR', totalEmployees: 0 }]);
-    employeesRequest(0, 8).flush([]);
-    expect(service.activeFilters()).toBeNull();
+      .flush([{ ...departments[0], totalEmployees: 42 }]);
+    employeesRequest(1).flush({}, { status: 500, statusText: 'Server Error' });
+    service.retry();
+    http
+      .expectOne('http://localhost:8080/departments')
+      .flush([{ ...departments[0], totalEmployees: 42 }]);
+    employeesRequest(1).flush([]);
+    expect(service.department()?.totalEmployees).toBe(42);
+    expect(service.page()).toBe(1);
+    expect(service.error()).toBeNull();
   });
 });

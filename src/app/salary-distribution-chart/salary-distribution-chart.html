@@ -4,14 +4,14 @@
       #canvas
       role="img"
       [attr.aria-label]="
-        'Salary allocation by ' + grouping() + '. Exact values follow in the accessible table.'
+        'Average salary by ' + grouping() + '. Exact values follow in the accessible table.'
       "
     ></canvas>
   </div>
 </div>
 <table class="visually-hidden">
   <caption>
-    Salary allocation by
+    Average salary by
     {{
       grouping()
     }}
@@ -19,8 +19,7 @@
   <thead>
     <tr>
       <th scope="col">Group</th>
-      <th scope="col">Total salary</th>
-      <th scope="col">Share (%)</th>
+      <th scope="col">Average salary</th>
       <th scope="col">Employees</th>
       <th scope="col">Missing salaries</th>
     </tr>
@@ -29,8 +28,11 @@
     @for (group of groups(); track group.key) {
       <tr>
         <th scope="row">{{ group.label }}</th>
-        <td>{{ group.totalSalary | number: '1.2-2' }}</td>
-        <td>{{ group.percentage | number: '1.2-2' }}</td>
+        <td>
+          {{
+            group.averageSalary === null ? 'Not available' : (group.averageSalary | number: '1.2-2')
+          }}
+        </td>
         <td>{{ group.employeeCount }}</td>
         <td>{{ group.missingSalaryCount }}</td>
       </tr>

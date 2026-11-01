@@ -1,7 +1,13 @@
 <section aria-labelledby="employee-title">
   <h1 id="employee-title">Employees</h1>
   @if (employee.department(); as department) {
-    <p class="description">{{ department.name }} · {{ department.totalEmployees }} employees</p>
+    @let selectedDepartment = department;
+    <p class="description">
+      <span>{{ department.name }} · {{ department.totalEmployees }} employees</span>
+      <button type="button" class="new-employee" (click)="createDialog.open(selectedDepartment)">
+        New
+      </button>
+    </p>
   }
 
   @if (employee.loading()) {
@@ -24,6 +30,7 @@
             <th scope="col">Name</th>
             <th scope="col" class="salary">Salary</th>
             <th scope="col">Country</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -43,6 +50,51 @@
                 </button>
               </td>
               <td>{{ person.country }}</td>
+              <td class="row-actions">
+                <button
+                  type="button"
+                  class="edit-employee"
+                  aria-haspopup="dialog"
+                  [attr.aria-label]="'Edit ' + person.name"
+                  title="Edit employee"
+                  (click)="editDialog.open(selectedEmployee, employee.department())"
+                >
+                  <svg
+                    aria-hidden="true"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="m16 3 5 5-12 12-6 1 1-6L16 3ZM14 5l5 5" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="delete-employee"
+                  aria-haspopup="dialog"
+                  [attr.aria-label]="'Delete ' + person.name"
+                  title="Delete employee"
+                  (click)="deleteDialog.open(selectedEmployee)"
+                >
+                  <svg
+                    aria-hidden="true"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  >
+                    <path d="m6 6 12 12M18 6 6 18" />
+                  </svg>
+                </button>
+              </td>
             </tr>
           }
         </tbody>
@@ -101,3 +153,6 @@
   }
 </section>
 <app-salary-structure-dialog #salaryDialog />
+<app-create-employee-dialog #createDialog (created)="employee.refresh()" />
+<app-edit-employee-dialog #editDialog (updated)="employee.refresh()" />
+<app-delete-employee-dialog #deleteDialog (deleted)="employee.refresh()" />

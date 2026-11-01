@@ -23,7 +23,8 @@ export class EmployeeService {
   private readonly route = inject(ActivatedRoute);
   private readonly dashboard = inject(DashboardService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly pageRequests = new Subject<number>();
+  private readonly pageRequests = new Subject<{ page: number; refreshDepartment: boolean }>();
+  private lastRequest = { page: 0, refreshDepartment: false };
   private readonly employeeState = signal<EmployeeDto[]>([]);
   private readonly departmentState = signal<DepartmentDto | null>(null);
   private readonly loadingState = signal(false);
@@ -67,15 +68,20 @@ export class EmployeeService {
           }
 
           return this.pageRequests.pipe(
-            startWith(0),
-            switchMap((page) => {
+            startWith({ page: 0, refreshDepartment: false }),
+            switchMap((request) => {
+              this.lastRequest = request;
+              const { page, refreshDepartment } = request;
               this.pageState.set(page);
               this.loadingState.set(true);
               this.errorState.set(null);
               this.employeeState.set([]);
-              const cached =
-                this.department() ??
-                this.dashboard.departments().find((department) => department.id === departmentId);
+              const cached = refreshDepartment
+                ? undefined
+                : (this.department() ??
+                  this.dashboard
+                    .departments()
+                    .find((department) => department.id === departmentId));
               const departments = cached
                 ? of([cached])
                 : this.http.get<DepartmentDto[]>(`${this.apiBaseUrl}/departments`);
@@ -94,6 +100,14 @@ export class EmployeeService {
                     );
                   } else {
                     this.departmentState.set(department);
+                    const lastPage = Math.max(
+                      0,
+                      Math.ceil(department.totalEmployees / this.pageSize) - 1,
+                    );
+                    if (page > lastPage) {
+                      this.pageRequests.next({ page: lastPage, refreshDepartment: false });
+                      return;
+                    }
                     this.employeeState.set(result.employees);
                   }
                   this.loadingState.set(false);
@@ -113,14 +127,19 @@ export class EmployeeService {
   }
 
   previousPage(): void {
-    if (this.canPrevious()) this.pageRequests.next(this.page() - 1);
+    if (this.canPrevious())
+      this.pageRequests.next({ page: this.page() - 1, refreshDepartment: false });
   }
 
   nextPage(): void {
-    if (this.canNext()) this.pageRequests.next(this.page() + 1);
+    if (this.canNext()) this.pageRequests.next({ page: this.page() + 1, refreshDepartment: false });
   }
 
   retry(): void {
-    if (!this.loading()) this.pageRequests.next(this.page());
+    if (!this.loading()) this.pageRequests.next(this.lastRequest);
+  }
+
+  refresh(): void {
+    this.pageRequests.next({ page: this.page(), refreshDepartment: true });
   }
 }

@@ -4,6 +4,7 @@ nav {
   gap: 12px;
 }
 header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -104,6 +105,41 @@ time {
   background: #eef3ff;
 }
 .logout:focus-visible {
+  outline: 3px solid #688ce3;
+  outline-offset: 3px;
+}
+.notification {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 24px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: calc(100vw - 48px);
+  padding: 14px 16px;
+  border: 1px solid #a8d5b9;
+  border-radius: 12px;
+  background: #effaf3;
+  color: #21663f;
+  box-shadow: 0 12px 32px #20334d1a;
+}
+.notification-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.notification-close:focus-visible {
   outline: 3px solid #688ce3;
   outline-offset: 3px;
 }

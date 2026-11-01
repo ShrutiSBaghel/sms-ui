@@ -46,8 +46,8 @@ export class SalaryDistributionChart {
               labels: groups.map((group) => group.label),
               datasets: [
                 {
-                  label: 'Total salary',
-                  data: groups.map((group) => group.totalSalary),
+                  label: 'Average salary',
+                  data: groups.map((group) => group.averageSalary),
                   backgroundColor: '#5278cc',
                   borderRadius: 5,
                   maxBarThickness: 36,
@@ -62,7 +62,7 @@ export class SalaryDistributionChart {
               scales: {
                 x: {
                   beginAtZero: true,
-                  title: { display: true, text: 'Total salary (recorded amounts)' },
+                  title: { display: true, text: 'Average salary (recorded amounts)' },
                 },
                 y: {
                   grid: { display: false },
@@ -75,9 +75,9 @@ export class SalaryDistributionChart {
                     label: (context) => {
                       const group = groups[context.dataIndex];
                       return [
-                        `Total salary: ${group.totalSalary.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                        `Share: ${group.percentage}%`,
+                        `Average salary: ${group.averageSalary === null ? 'Not available' : group.averageSalary.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
                         `Employees: ${group.employeeCount}`,
+                        `Recorded salaries: ${group.employeeCount - group.missingSalaryCount}`,
                         `Missing salaries: ${group.missingSalaryCount}`,
                       ];
                     },

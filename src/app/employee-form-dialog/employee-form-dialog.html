@@ -1,0 +1,150 @@
+<dialog
+  #dialog
+  [attr.aria-labelledby]="mode() + '-title'"
+  (close)="restoreFocus()"
+  (cancel)="onCancel($event)"
+>
+  <header class="dialog-header">
+    <h2 [id]="mode() + '-title'">{{ editor.editing() ? 'Edit employee' : 'Create employee' }}</h2>
+    <button
+      type="button"
+      class="close"
+      [attr.aria-label]="
+        editor.editing() ? 'Close edit employee dialog' : 'Close create employee dialog'
+      "
+      title="Close"
+      [disabled]="editor.saving()"
+      (click)="close()"
+      autofocus
+    >
+      <svg
+        aria-hidden="true"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+      >
+        <path d="m6 6 12 12M18 6 6 18" />
+      </svg>
+    </button>
+  </header>
+
+  @if (editor.error()) {
+    <p class="error" role="alert">{{ editor.error() }}</p>
+  }
+  @if (editor.department(); as department) {
+    <form [formGroup]="editor.form" (ngSubmit)="editor.submit()">
+      <fieldset [disabled]="editor.saving() || editor.saved() || editor.unavailable()">
+        <legend>Employee details</legend>
+        <div class="form-grid">
+          <div class="field">
+            <label [for]="idPrefix() + 'employee-name'">Name</label>
+            <input
+              [id]="idPrefix() + 'employee-name'"
+              formControlName="name"
+              type="text"
+              maxlength="255"
+              required
+              autocomplete="off"
+              [attr.aria-invalid]="
+                editor.form.controls.name.touched && editor.form.controls.name.invalid
+              "
+              [attr.aria-describedby]="idPrefix() + 'name-error'"
+            />
+            @if (editor.form.controls.name.touched && editor.form.controls.name.invalid) {
+              <p class="field-error" [id]="idPrefix() + 'name-error'">
+                Enter a name with 1–255 characters.
+              </p>
+            }
+          </div>
+          <div class="field">
+            <label [for]="idPrefix() + 'employee-country'">Country</label>
+            <input
+              [id]="idPrefix() + 'employee-country'"
+              formControlName="country"
+              type="text"
+              maxlength="255"
+              required
+              autocomplete="country-name"
+              [attr.aria-invalid]="
+                editor.form.controls.country.touched && editor.form.controls.country.invalid
+              "
+              [attr.aria-describedby]="idPrefix() + 'country-error'"
+            />
+            @if (editor.form.controls.country.touched && editor.form.controls.country.invalid) {
+              <p class="field-error" [id]="idPrefix() + 'country-error'">
+                Enter a country with 1–255 characters.
+              </p>
+            }
+          </div>
+          <div class="field">
+            <label [for]="idPrefix() + 'employee-department'">Department</label>
+            <input [id]="idPrefix() + 'employee-department'" [value]="department.name" readonly />
+          </div>
+        </div>
+      </fieldset>
+      <fieldset [disabled]="editor.saving() || editor.saved() || editor.unavailable()">
+        <legend>Salary structure</legend>
+        <div class="form-grid">
+          @for (field of moneyFields; track field.key) {
+            <div class="field">
+              <label [for]="idPrefix() + field.key">{{ field.label }}</label>
+              <input
+                [id]="idPrefix() + field.key"
+                [formControlName]="field.key"
+                type="text"
+                inputmode="decimal"
+                maxlength="39"
+                required
+                [attr.aria-invalid]="
+                  editor.form.controls[field.key].touched && editor.form.controls[field.key].invalid
+                "
+                [attr.aria-describedby]="idPrefix() + field.key + '-error'"
+              />
+              @if (
+                editor.form.controls[field.key].touched && editor.form.controls[field.key].invalid
+              ) {
+                <p class="field-error" [id]="idPrefix() + field.key + '-error'">
+                  Use a nonnegative amount with at most two decimals and 36 integer digits.
+                </p>
+              }
+            </div>
+          }
+        </div>
+      </fieldset>
+      <div class="total">
+        <span>Total salary</span>
+        <output aria-live="polite">{{ editor.total() ?? '—' }}</output>
+      </div>
+      @if (editor.totalError()) {
+        <p class="field-error" role="alert">{{ editor.totalError() }}</p>
+      }
+      @if (editor.saving()) {
+        <p class="status" role="status">
+          {{ editor.editing() ? 'Updating employee…' : 'Creating employee…' }}
+        </p>
+      }
+      <div class="actions">
+        <button type="button" (click)="close()" [disabled]="editor.saving()">Cancel</button>
+        <button
+          type="submit"
+          class="primary"
+          [disabled]="editor.saving() || editor.saved() || editor.unavailable()"
+        >
+          {{
+            editor.editing()
+              ? editor.saving()
+                ? 'Saving…'
+                : 'Save changes'
+              : editor.saving()
+                ? 'Creating…'
+                : 'Create employee'
+          }}
+        </button>
+      </div>
+    </form>
+  }
+</dialog>

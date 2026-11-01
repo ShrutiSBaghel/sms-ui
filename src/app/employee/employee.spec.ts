@@ -44,53 +44,7 @@ describe('Employee page', () => {
 
   afterEach(() => http.verify());
 
-  it('opens metadata dropdowns and shows all filtered results in the same table', async () => {
-    const harness = await RouterTestingHarness.create('/employee/7');
-    http
-      .expectOne('http://localhost:8080/departments')
-      .flush([
-        {
-          id: 7,
-          name: 'Engineering',
-          totalEmployees: 41,
-          allDistinctSalary: [12345.67],
-          allDistinctCountry: ['India', 'Canada'],
-        },
-      ]);
-    http.expectOne('http://localhost:8080/employees?dep_id=7&page=0&size=20').flush([alice]);
-    harness.detectChanges();
-    const element = harness.routeNativeElement!;
-    const dialog = element.querySelector<HTMLDialogElement>(
-      'dialog[aria-labelledby="filter-title"]',
-    )!;
-    dialog.showModal = () => dialog.setAttribute('open', '');
-    dialog.close = () => {
-      dialog.removeAttribute('open');
-      dialog.dispatchEvent(new Event('close'));
-    };
-    expect(element.querySelector('.description .filter-button')).toBeTruthy();
-    element.querySelector<HTMLButtonElement>('.filter-button')!.click();
-    harness.detectChanges();
-    const country = dialog.querySelector<HTMLSelectElement>('#filter-country')!;
-    country.value = Array.from(country.options).find(
-      (option) => option.textContent?.trim() === 'India',
-    )!.value;
-    country.dispatchEvent(new Event('change'));
-    dialog.querySelector<HTMLButtonElement>('button[type="submit"]')!.click();
-    http
-      .expectOne('http://localhost:8080/employees/filter?depId=7&operator=AND&country=India')
-      .flush(Array.from({ length: 25 }, (_, index) => ({ ...alice, id: index + 1 })));
-    harness.detectChanges();
-    expect(dialog.open).toBe(false);
-    expect(element.querySelectorAll('.table-container tbody tr')).toHaveLength(25);
-    expect(element.querySelector('.pagination')).toBeNull();
-    element.querySelector<HTMLButtonElement>('.active-filters button')!.click();
-    http.expectOne('http://localhost:8080/employees?dep_id=7&page=0&size=20').flush([alice]);
-    harness.detectChanges();
-    expect(element.querySelector('.pagination')).toBeTruthy();
-    expect(element.querySelector('.active-filters')).toBeNull();
-  });
-
+  // The first navigation loads the real lazy route chunks as well as rendering the page.
   it('loads a direct department URL and displays employees and pagination', async () => {
     const harness = await RouterTestingHarness.create('/employee/7');
     expect(harness.routeNativeElement?.textContent).toContain('Loading employees');
@@ -116,7 +70,7 @@ describe('Employee page', () => {
     http.expectOne('http://localhost:8080/employees?dep_id=7&page=0&size=20').flush([alice]);
     harness.detectChanges();
     expect(element.querySelector('tbody')?.textContent).toContain('Alice');
-  });
+  }, 15000);
 
   it('shows an error and retries from the page', async () => {
     const harness = await RouterTestingHarness.create('/employee/7');
